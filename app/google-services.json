@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "314745382962",
+    "project_id": "matematicamente-aea12",
+    "storage_bucket": "matematicamente-aea12.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:314745382962:android:24842dbca357faf451f42b",
+        "android_client_info": {
+          "package_name": "com.emdev.matematicamente"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "314745382962-97jmqhv9qv6194uvmq1p3mqeiril5cee.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.emdev.matematicamente",
+            "certificate_hash": "32aa1ff6cd47b6e080c01d8968d6825aaba5088a"
+          }
+        },
+        {
+          "client_id": "314745382962-jdh1apapforf4bd7v32ba8h75q6tnvo5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_ebVeELAWTZFhfxxOtDZxoCgc2K-PJBY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "314745382962-jdh1apapforf4bd7v32ba8h75q6tnvo5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
