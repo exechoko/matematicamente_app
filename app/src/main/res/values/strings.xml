@@ -11,4 +11,43 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+
+    <string-array name="Establecimientos">
+        <item>Seleccione</item>
+        <item>Pablo de Tarso</item>
+        <item>Esc. Tecn. 21</item>
+    </string-array>
+
+    <string-array name="Asignaturas">
+        <item>Seleccione</item>
+        <item>Matemática</item>
+        <item>Lengua y Literatura</item>
+        <item>Historia</item>
+        <item>Geografía</item>
+        <item>Ingles</item>
+        <item>Ética y ciudadana</item>
+        <item>Tecnología</item>
+        <item>Físicoquímica</item>
+        <item>Biología</item>
+        <item>TIC</item>
+        <item>Cs. de la Tierra</item>
+        <item>Lit. Latinoamericana</item>
+        <item>Bioética</item>
+        <item>Artes Visuales</item>
+        <item>Música</item>
+        <item>Educación Fisica</item>
+        <item>Intro. a la Investigación</item>
+        <item>Práctica Educativa</item>
+    </string-array>
+
+    <string-array name="Cursos">
+        <item>Seleccione</item>
+        <item>1º año</item>
+        <item>2º año</item>
+        <item>3º año</item>
+        <item>4º año</item>
+        <item>5º año</item>
+        <item>6º año</item>
+    </string-array>
+
 </resources>

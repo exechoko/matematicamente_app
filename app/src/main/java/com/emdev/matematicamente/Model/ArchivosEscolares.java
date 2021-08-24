@@ -4,6 +4,7 @@ public class ArchivosEscolares {
     String id;
     String nombre;
     String escuela;
+    String materia;
     String curso;
     String compartido;
     String fecha;
@@ -12,10 +13,11 @@ public class ArchivosEscolares {
     public ArchivosEscolares() {
     }
 
-    public ArchivosEscolares(String id, String nombre, String escuela, String curso, String compartido, String fecha, String url) {
+    public ArchivosEscolares(String id, String nombre, String escuela, String materia, String curso, String compartido, String fecha, String url) {
         this.id = id;
         this.nombre = nombre;
         this.escuela = escuela;
+        this.materia = materia;
         this.curso = curso;
         this.compartido = compartido;
         this.fecha = fecha;
@@ -44,6 +46,14 @@ public class ArchivosEscolares {
 
     public void setEscuela(String escuela) {
         this.escuela = escuela;
+    }
+
+    public String getMateria() {
+        return materia;
+    }
+
+    public void setMateria(String materia) {
+        this.materia = materia;
     }
 
     public String getCurso() {

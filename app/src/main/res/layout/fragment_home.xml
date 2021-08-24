@@ -12,7 +12,7 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/menuPerfilDocente"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -278,7 +278,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Trabajos prácticos"
+                    android:text="Ejercitación"
                     android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="20sp"
