@@ -2,6 +2,7 @@ package com.emdev.matematicamente.Model;
 
 public class ArchivosEscolares {
     String id;
+    String idArchivo;
     String nombre;
     String escuela;
     String materia;
@@ -13,8 +14,9 @@ public class ArchivosEscolares {
     public ArchivosEscolares() {
     }
 
-    public ArchivosEscolares(String id, String nombre, String escuela, String materia, String curso, String compartido, String fecha, String url) {
+    public ArchivosEscolares(String id, String idArchivo, String nombre, String escuela, String materia, String curso, String compartido, String fecha, String url) {
         this.id = id;
+        this.idArchivo = idArchivo;
         this.nombre = nombre;
         this.escuela = escuela;
         this.materia = materia;
@@ -30,6 +32,14 @@ public class ArchivosEscolares {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getIdArchivo() {
+        return idArchivo;
+    }
+
+    public void setIdArchivo(String idArchivo) {
+        this.idArchivo = idArchivo;
     }
 
     public String getNombre() {

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="4dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ECECEC">
+
+        <ImageView
+            android:id="@+id/doc_imagen"
+            android:src="@drawable/icon_pdf"
+            android:layout_centerVertical="true"
+            android:layout_margin="5dp"
+            android:layout_width="75dp"
+            android:layout_height="75dp" />
+
+        <TextView
+            android:id="@+id/doc_nombre"
+            android:text="Nombre del documento"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_toRightOf="@id/doc_imagen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="7dp"/>
+
+        <TextView
+            android:id="@+id/doc_materia"
+            android:text="Matematica"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:layout_toRightOf="@id/doc_imagen"
+            android:layout_below="@id/doc_nombre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/doc_curso"
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:layout_toRightOf="@id/doc_imagen"
+            android:layout_below="@id/doc_materia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/doc_escuela"
+            android:text="Escuela"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:layout_toRightOf="@id/doc_imagen"
+            android:layout_below="@id/doc_curso"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"/>
+
+
+        <TextView
+            android:id="@+id/doc_fecha"
+            android:text="25/07/2021"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:layout_toRightOf="@id/doc_imagen"
+            android:layout_below="@id/doc_escuela"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/compartir"
+            android:layout_below="@id/doc_fecha"
+            android:layout_toRightOf="@id/doc_imagen"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="Compartir"/>
+
+        <ImageView
+            android:id="@+id/descargar"
+            android:src="@drawable/icon_download"
+            android:layout_alignParentRight="true"
+            android:padding="2dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
+
+        <ImageView
+            android:id="@+id/deleteWork"
+            android:src="@drawable/ic_delete"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/descargar"
+            android:padding="2dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>

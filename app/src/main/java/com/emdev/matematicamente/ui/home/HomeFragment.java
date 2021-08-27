@@ -1,10 +1,13 @@
 package com.emdev.matematicamente.ui.home;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,18 +30,28 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.emdev.matematicamente.Interface.ItemClickListener;
 import com.emdev.matematicamente.MainActivity;
 import com.emdev.matematicamente.Model.ArchivosEscolares;
 import com.emdev.matematicamente.Model.Usuario;
 import com.emdev.matematicamente.R;
+import com.emdev.matematicamente.ViewHolder.ArchivosEscolaresViewHolder;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -61,7 +74,7 @@ public class HomeFragment extends Fragment {
     private Usuario usuario;
     CardView menuPerfilDocente, btnSubirMisDocumentos, btnAdmMisDoc, btnSubirVideo, btnAdmVideos, btnSubirTrabajo, btnAdmTrabajos, btnVerTrabajo;
 
-    //Para subir un trabajo
+    //Para subir un trabajo escolar
     StorageReference storageReference;
     EditText edtNombreCreador, edtNombreTrabajo;
     Spinner spin_establecimiento_agregar_trab, spin_curso_agregar_trab, spin_asig_agregar_trab;
@@ -72,6 +85,11 @@ public class HomeFragment extends Fragment {
     RadioButton btnYes, btnNo;
     String compartido = "";
     ArchivosEscolares trabajoPDF;
+
+    //Ver Trabajos Escolares
+    RecyclerView recycler_trabajos;
+    LinearLayoutManager layoutManager;
+    FirestoreRecyclerAdapter<ArchivosEscolares, ArchivosEscolaresViewHolder> adapterArcEsc;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -102,7 +120,164 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        btnAdmMisDoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogVerMisDocumentos(usuario);
+            }
+        });
+
         return root;
+    }
+
+    private void dialogVerMisDocumentos(Usuario usuario) {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity())
+                .setTitle("Mis archivos escolares subidos")
+                .setCancelable(false);
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        View misTrabajosEscolares = inflater.inflate(R.layout.datos_en_recycler, null);
+
+        recycler_trabajos = misTrabajosEscolares.findViewById(R.id.recycler_datos);
+        layoutManager = new LinearLayoutManager(getActivity());
+        recycler_trabajos.setLayoutManager(layoutManager);
+
+        Query query = db.collection("ArchivosEscolares")
+                .whereEqualTo("id", usuario.getId());
+        //.orderBy("fecha", Query.Direction.DESCENDING);
+
+        FirestoreRecyclerOptions<ArchivosEscolares> options = new FirestoreRecyclerOptions.Builder<ArchivosEscolares>()
+                .setQuery(query, ArchivosEscolares.class)
+                .build();
+
+        adapterArcEsc = new FirestoreRecyclerAdapter<ArchivosEscolares, ArchivosEscolaresViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull ArchivosEscolaresViewHolder holder, int i, @NonNull ArchivosEscolares arcEscolar) {
+
+                holder.doc_nombre.setText(arcEscolar.getNombre());
+                holder.doc_materia.setText(arcEscolar.getMateria());
+                holder.doc_curso.setText(arcEscolar.getCurso() + "º año");
+                holder.doc_fecha.setText(arcEscolar.getFecha());
+
+                if (arcEscolar.getUrl().contains(".pdf")){
+                    Picasso.get().load(R.drawable.icon_pdf).into(holder.doc_imagen);
+                } else if (arcEscolar.getUrl().contains(".jpg")){
+                    Picasso.get().load(R.drawable.icon_imagen).into(holder.doc_imagen);
+                }
+
+                holder.compartir.setChecked(arcEscolar.getCompartido().equals("SI"));
+                compartirONo(holder.compartir, arcEscolar);
+                /*holder.compartir.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (holder.compartir.isChecked()){
+                            arcEscolar.setCompartido("SI");
+                            //actualizar
+                            db.collection("ArchivosEscolares").document(arcEscolar.getIdArchivo()).set(arcEscolar);
+                            Toast.makeText(getActivity(), "Archivo compartido", Toast.LENGTH_SHORT).show();
+                        } else {
+                            arcEscolar.setCompartido("NO");
+                            //actualizar
+                            db.collection("ArchivosEscolares").document(arcEscolar.getIdArchivo()).set(arcEscolar);
+                            Toast.makeText(getActivity(), "No compartido", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });*/
+
+
+
+                holder.doc_escuela.setText(arcEscolar.getEscuela());
+
+                //String destinoPath = Environment.DIRECTORY_DOWNLOADS;//Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
+                holder.doc_download.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(), "Boton de descarga", Toast.LENGTH_SHORT).show();
+                        //VERIFICAR PERMISOS
+                        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                                //Denegado, solicitarlo
+                                String [] permisos = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                                //Dialogo emergente
+                                requestPermissions(permisos,PERMISO_ALMACENAMIENTO);
+
+                            } else {
+                                Toast.makeText(MenuDocentesActivity.this, "Espere mientras se descarga", Toast.LENGTH_SHORT).show();
+                                //downloadFile(documentos);
+                                otroDownload(documentos);
+                            }
+                        } else {
+                            Toast.makeText(MenuDocentesActivity.this, "Espere mientras se descarga", Toast.LENGTH_SHORT).show();
+                            otroDownload(documentos);
+
+                        }*/
+                    }
+                });
+
+                holder.doc_delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(), "Boton eliminar", Toast.LENGTH_SHORT).show();
+                        /*deleteMiTrabajo(adapter.getSnapshots().getSnapshot(holder.getAdapterPosition()).getId());*/
+                    }
+                });
+
+                holder.setItemClickListener(new ItemClickListener() {
+                    @Override
+                    public void onClick(View view, int position, boolean isLongClick) {
+                        Toast.makeText(getActivity(), "Id: " + arcEscolar.getIdArchivo(), Toast.LENGTH_SHORT).show();
+                        /*startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(clickEnDoc.getUrl())));*/
+                    }
+                });
+            }
+
+            @NonNull
+            @Override
+            public ArchivosEscolaresViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_arc_esc,parent,false);
+                return new ArchivosEscolaresViewHolder(view);
+            }
+        };
+
+        recycler_trabajos.setAdapter(adapterArcEsc);
+        adapterArcEsc.startListening();
+
+        alert.setView(misTrabajosEscolares);
+
+        alert.setNegativeButton("CERRAR", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                adapterArcEsc.stopListening();
+                dialogInterface.cancel();
+
+            }
+        });
+
+        alert.show();
+    }
+
+    private void compartirONo(SwitchMaterial compartir, ArchivosEscolares archivo) {
+
+        ArchivosEscolares nuevoArchi;
+        nuevoArchi = archivo;
+
+        compartir.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (compartir.isChecked()){
+                    nuevoArchi.setCompartido("SI");
+                    //actualizar
+                    db.collection("ArchivosEscolares").document(archivo.getIdArchivo()).set(nuevoArchi);
+                    Toast.makeText(getActivity(), "Archivo compartido", Toast.LENGTH_SHORT).show();
+                } else {
+                    nuevoArchi.setCompartido("NO");
+                    //actualizar
+                    db.collection("ArchivosEscolares").document(archivo.getIdArchivo()).set(nuevoArchi);
+                    Toast.makeText(getActivity(), "No compartido", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void cargarUsuario(String uid) {
@@ -139,13 +314,22 @@ public class HomeFragment extends Fragment {
         LayoutInflater inflater = this.getLayoutInflater();
         View agregar_trabajo = inflater.inflate(R.layout.agregar_trabajo, null);
 
-        /*RadioButton botonSeleccionado;
         RadioGroup rg = agregar_trabajo.findViewById(R.id.rg_share);
-        int selectButton = rg.getCheckedRadioButtonId();
-        botonSeleccionado = rg.findViewById(selectButton);
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
-        Toast.makeText(getActivity(), botonSeleccionado.getText(), Toast.LENGTH_SHORT).show();*/
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                int childCount = group.getChildCount();
+                for (int x = 0; x < childCount; x++) {
+                    RadioButton btn = (RadioButton) group.getChildAt(x);
+                    if (btn.getId() == checkedId) {
+                        Log.d("selected RadioButton->",btn.getText().toString());//SI y NO
+                        compartido = btn.getText().toString();
 
+                    }
+                }
+            }
+        });
 
         edtNombreTrabajo = agregar_trabajo.findViewById(R.id.edtNombreTrabajo);
         edtNombreCreador = agregar_trabajo.findViewById(R.id.edtNombreCreador);
@@ -163,6 +347,7 @@ public class HomeFragment extends Fragment {
         ArrayAdapter<CharSequence> adapterAsignatura = ArrayAdapter.createFromResource(getActivity(),
                 R.array.Asignaturas, android.R.layout.simple_spinner_item);
         // Specify the layout to use when the list of choices appears
+        adapterEstab.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterCursos.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterAsignatura.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
@@ -235,7 +420,7 @@ public class HomeFragment extends Fragment {
                         || mat.equals("") || mat.equals("Seleccione") || cur.equals("") || cur.equals("0")) {
                     Toast.makeText(getActivity(), "Complete todos los campos", Toast.LENGTH_SHORT).show();
                 } else if (trabajoPDF != null){
-                    String uid = String.valueOf(System.currentTimeMillis());
+                    String uid = trabajoPDF.getIdArchivo();
                     db.collection("ArchivosEscolares").document(uid).set(trabajoPDF);
                     Toast.makeText(getActivity(), "Agregado correctamente", Toast.LENGTH_SHORT).show();
                 }
@@ -359,7 +544,8 @@ public class HomeFragment extends Fragment {
 
                         //String id, String nombre, String escuela, String materia, String curso, String compartido, String fecha, String url
                         String id = mAuth.getUid();
-                        trabajoPDF = new ArchivosEscolares(id, edtNombreTrabajo.getText().toString(), escuela, mat, cur, /*compartido*/"false", thisDate, uri.toString());
+                        String idArc = String.valueOf(System.currentTimeMillis());
+                        trabajoPDF = new ArchivosEscolares(id, idArc,edtNombreTrabajo.getText().toString(), escuela, mat, cur, compartido, thisDate, uri.toString());
 
                         Toast.makeText(getActivity(), "Archivo subido a la nube\nPresione CONFIRMAR", Toast.LENGTH_SHORT).show();
                         progressDialog.dismiss();
