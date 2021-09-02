@@ -46,7 +46,7 @@
 
         <TextView
             android:id="@+id/doc_curso"
-            android:text=""
+            android:text="curso"
             android:textColor="@color/black"
             android:textSize="15sp"
             android:layout_toRightOf="@id/doc_imagen"
