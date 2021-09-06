@@ -158,7 +158,6 @@ public class HomeFragment extends Fragment {
                 dialogVerMisDocumentos(usuario);
             }
         });
-        
 
         //------------------------------------------------------------
 

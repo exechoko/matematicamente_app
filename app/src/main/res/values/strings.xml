@@ -16,6 +16,8 @@
         <item>Seleccione</item>
         <item>Pablo de Tarso</item>
         <item>Esc. Tecn. 21</item>
+        <item>J. M. de Rosas Nº 101</item>
+        <item>Atahualpa Yupanqui</item>
     </string-array>
 
     <string-array name="Asignaturas">
@@ -48,6 +50,7 @@
         <item>4º año</item>
         <item>5º año</item>
         <item>6º año</item>
+        <item>7º año</item>
     </string-array>
 
 </resources>
