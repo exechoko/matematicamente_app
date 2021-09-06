@@ -97,14 +97,20 @@ public class HomeFragment extends Fragment {
     EditText edtNombreCreadorDoc, edtNombreDocumento;
     Button btnSelectDoc, btnUploadDoc;
 
-    //Ver Trabajos Escolares
+    //Administrar Trabajos Escolares
     RecyclerView recycler_trabajos;
     LinearLayoutManager layoutManager;
     FirestoreRecyclerAdapter<ArchivosEscolares, ArchivosEscolaresViewHolder> adapterArcEsc;
 
-    //Ver Documentos privados
+    //Administrar Documentos privados
     RecyclerView recycler_documentos;
     FirestoreRecyclerAdapter<ArchivoPrivado, ArchivoPrivadoViewHolder> adapterArcPrivado;
+
+    //Ver trabajos compartidos escolares los estudiantes
+    Spinner spin_escuela, spin_materia, spin_curso;
+    String e="";
+    String m="";
+    String c="";
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -163,9 +169,75 @@ public class HomeFragment extends Fragment {
 
         //Ver trabajos compartidos (app para los estudiantes)
         btnVerTrabajo = root.findViewById(R.id.btnVerTrabajo);
+        spin_escuela = root.findViewById(R.id.spinnerEscuela);
+        spin_curso = root.findViewById(R.id.spinnerCurso);
+        spin_materia = root.findViewById(R.id.spinnerAsignatura);
+        ArrayAdapter<CharSequence> adapterEscuela = ArrayAdapter.createFromResource(getActivity(),
+                R.array.Establecimientos, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapterCurso = ArrayAdapter.createFromResource(getActivity(),
+                R.array.Cursos, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapterMateria = ArrayAdapter.createFromResource(getActivity(),
+                R.array.Asignaturas, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapterEscuela.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapterCurso.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapterMateria.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spin_escuela.setAdapter(adapterEscuela);
+        spin_curso.setAdapter(adapterCurso);
+        spin_materia.setAdapter(adapterMateria);
+
+        spin_establecimiento_agregar_trab.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                e = parent.getItemAtPosition(position).toString();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spin_curso_agregar_trab.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                c = String.valueOf(parent.getItemIdAtPosition(position));
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spin_asig_agregar_trab.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                m = parent.getItemAtPosition(position).toString();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        btnVerTrabajo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (c.equals("")||c.equals("Seleccione")||e.equals("Seleccione")||e.equals("")||m.equals("Seleccione")||m.equals("")){
+                    Toast.makeText(getActivity(), "Debe elegir escuela, curso y materia", Toast.LENGTH_SHORT).show();
+                } else {
+                    realizarBusqueda(e,c,m);
+                }
+            }
+        });
+
         //------------------------------------------------------------
         
         return root;
+    }
+
+    private void realizarBusqueda(String esc, String cur, String mat) {
+
+
     }
 
     private void dialogVerMisDocumentos(Usuario usuario) {

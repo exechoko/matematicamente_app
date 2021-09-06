@@ -12,7 +12,7 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/menuPerfilDocente"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -285,12 +285,40 @@
                     android:textStyle="bold"
                     />
 
-                <!--LinearLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/black"
+                        android:text="Escuela/Instituto"
+                        android:textColor="@color/white"
+                        android:textSize="20sp"
+                        android:textStyle="bold"/>
+
+                    <Spinner
+                        android:id="@+id/spinnerEscuela"
+                        android:layout_width="match_parent"
+                        android:layout_height="25dp"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginEnd="15dp"
+                        android:background="#AAAAAA"
+                        android:entries="@array/Establecimientos"
+                        android:spinnerMode="dropdown"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -311,14 +339,14 @@
                         android:entries="@array/Cursos"
                         android:spinnerMode="dropdown"/>
 
-                </LinearLayout-->
+                </LinearLayout>
 
-                <!--LinearLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="5dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/textView3"
@@ -339,7 +367,7 @@
                         android:background="#AAAAAA"
                         android:entries="@array/Asignaturas"/>
 
-                </LinearLayout-->
+                </LinearLayout>
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/btnVerTrabajo"
