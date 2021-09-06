@@ -35,14 +35,14 @@
 
         <TextView
             android:id="@+id/doc_materia"
-            android:text="Matematica"
-            android:textColor="@color/black"
-            android:textSize="15sp"
-            android:layout_toRightOf="@id/doc_imagen"
-            android:layout_below="@id/doc_nombre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"/>
+            android:layout_below="@id/doc_nombre"
+            android:layout_marginStart="10dp"
+            android:layout_toRightOf="@id/doc_imagen"
+            android:text="Matematica"
+            android:textColor="@color/black"
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/doc_curso"
@@ -87,7 +87,8 @@
             android:layout_toRightOf="@id/doc_imagen"
             android:checked="false"
             android:text="Compartir"
-            android:textColor="@color/black"/>
+            android:visibility="gone"
+            android:textColor="@color/black" />
 
         <ImageView
             android:id="@+id/descargar"

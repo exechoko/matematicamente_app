@@ -10,7 +10,7 @@
         <entry key="app/src/main/res/layout/agregar_doc_privado.xml" value="0.33" />
         <entry key="app/src/main/res/layout/agregar_trabajo.xml" value="0.25" />
         <entry key="app/src/main/res/layout/datos_en_recycler.xml" value="0.17119565217391305" />
-        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.2" />
         <entry key="app/src/main/res/layout/item_arc_esc.xml" value="0.25" />
         <entry key="app/src/main/res/layout/item_doc_privado.xml" value="0.33" />
       </map>

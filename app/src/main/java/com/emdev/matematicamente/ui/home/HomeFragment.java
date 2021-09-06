@@ -187,7 +187,7 @@ public class HomeFragment extends Fragment {
         spin_curso.setAdapter(adapterCurso);
         spin_materia.setAdapter(adapterMateria);
 
-        spin_establecimiento_agregar_trab.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spin_escuela.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 e = parent.getItemAtPosition(position).toString();
@@ -198,7 +198,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        spin_curso_agregar_trab.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spin_curso.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 c = String.valueOf(parent.getItemIdAtPosition(position));
@@ -209,7 +209,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        spin_asig_agregar_trab.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spin_materia.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 m = parent.getItemAtPosition(position).toString();
@@ -236,6 +236,119 @@ public class HomeFragment extends Fragment {
     }
 
     private void realizarBusqueda(String esc, String cur, String mat) {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity())
+                .setTitle("Archivos escolares")
+                .setCancelable(false);
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        View misTrabajosEscolares = inflater.inflate(R.layout.datos_en_recycler, null);
+
+        recycler_trabajos = misTrabajosEscolares.findViewById(R.id.recycler_datos);
+        layoutManager = new LinearLayoutManager(getActivity());
+        recycler_trabajos.setLayoutManager(layoutManager);
+
+        Query query = db.collection("ArchivosEscolares")
+                .whereEqualTo("escuela", esc)
+                .whereEqualTo("curso", cur)
+                .whereEqualTo("materia", mat)
+                .whereEqualTo("compartido", "SI"); //unicamente ver los archivos que fueron compartidos
+        //.orderBy("fecha", Query.Direction.DESCENDING);
+
+        FirestoreRecyclerOptions<ArchivosEscolares> options = new FirestoreRecyclerOptions.Builder<ArchivosEscolares>()
+                .setQuery(query, ArchivosEscolares.class)
+                .build();
+
+        adapterArcEsc = new FirestoreRecyclerAdapter<ArchivosEscolares, ArchivosEscolaresViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull ArchivosEscolaresViewHolder holder, int i, @NonNull ArchivosEscolares arcEscolar) {
+
+                holder.doc_nombre.setText(arcEscolar.getNombre());
+                holder.doc_materia.setText(arcEscolar.getMateria());
+                holder.doc_curso.setText(arcEscolar.getCurso() + "º año");
+                holder.doc_fecha.setText(arcEscolar.getFecha());
+
+                if (arcEscolar.getUrl().contains(".pdf")){
+                    Picasso.get().load(R.drawable.icon_pdf).into(holder.doc_imagen);
+                } else if (arcEscolar.getUrl().contains(".jpg")){
+                    Picasso.get().load(R.drawable.icon_imagen).into(holder.doc_imagen);
+                }
+
+                if (arcEscolar.getId().equals(usuario.getId())){
+                    holder.compartir.setVisibility(View.VISIBLE);
+                    holder.compartir.setChecked(arcEscolar.getCompartido().equals("SI"));
+                    compartirONo(holder.compartir, arcEscolar);
+                }
+
+
+                holder.doc_escuela.setText(arcEscolar.getEscuela());
+
+                //String destinoPath = Environment.DIRECTORY_DOWNLOADS;//Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
+                holder.doc_download.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(), "Boton de descarga", Toast.LENGTH_SHORT).show();
+                        //VERIFICAR PERMISOS
+                        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                                //Denegado, solicitarlo
+                                String [] permisos = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                                //Dialogo emergente
+                                requestPermissions(permisos,PERMISO_ALMACENAMIENTO);
+
+                            } else {
+                                Toast.makeText(MenuDocentesActivity.this, "Espere mientras se descarga", Toast.LENGTH_SHORT).show();
+                                //downloadFile(documentos);
+                                otroDownload(documentos);
+                            }
+                        } else {
+                            Toast.makeText(MenuDocentesActivity.this, "Espere mientras se descarga", Toast.LENGTH_SHORT).show();
+                            otroDownload(documentos);
+
+                        }*/
+                    }
+                });
+
+                holder.doc_delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(), "Boton eliminar", Toast.LENGTH_SHORT).show();
+                        /*deleteMiTrabajo(adapter.getSnapshots().getSnapshot(holder.getAdapterPosition()).getId());*/
+                    }
+                });
+
+                holder.setItemClickListener(new ItemClickListener() {
+                    @Override
+                    public void onClick(View view, int position, boolean isLongClick) {
+                        Toast.makeText(getActivity(), "Id: " + arcEscolar.getIdArchivo(), Toast.LENGTH_SHORT).show();
+                        /*startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(clickEnDoc.getUrl())));*/
+                    }
+                });
+            }
+
+            @NonNull
+            @Override
+            public ArchivosEscolaresViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_arc_esc,parent,false);
+                return new ArchivosEscolaresViewHolder(view);
+            }
+        };
+
+        recycler_trabajos.setAdapter(adapterArcEsc);
+        adapterArcEsc.startListening();
+
+        alert.setView(misTrabajosEscolares);
+
+        alert.setNegativeButton("CERRAR", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                adapterArcEsc.stopListening();
+                dialogInterface.cancel();
+
+            }
+        });
+
+        alert.show();
 
 
     }
@@ -433,24 +546,11 @@ public class HomeFragment extends Fragment {
                     Picasso.get().load(R.drawable.icon_imagen).into(holder.doc_imagen);
                 }
 
-                holder.compartir.setChecked(arcEscolar.getCompartido().equals("SI"));
-                compartirONo(holder.compartir, arcEscolar);
-                /*holder.compartir.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (holder.compartir.isChecked()){
-                            arcEscolar.setCompartido("SI");
-                            //actualizar
-                            db.collection("ArchivosEscolares").document(arcEscolar.getIdArchivo()).set(arcEscolar);
-                            Toast.makeText(getActivity(), "Archivo compartido", Toast.LENGTH_SHORT).show();
-                        } else {
-                            arcEscolar.setCompartido("NO");
-                            //actualizar
-                            db.collection("ArchivosEscolares").document(arcEscolar.getIdArchivo()).set(arcEscolar);
-                            Toast.makeText(getActivity(), "No compartido", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });*/
+                if (arcEscolar.getId().equals(usuario.getId())){
+                    holder.compartir.setVisibility(View.VISIBLE);
+                    holder.compartir.setChecked(arcEscolar.getCompartido().equals("SI"));
+                    compartirONo(holder.compartir, arcEscolar);
+                }
 
 
 

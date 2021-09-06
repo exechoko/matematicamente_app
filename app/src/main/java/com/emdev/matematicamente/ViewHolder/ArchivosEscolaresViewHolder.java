@@ -15,7 +15,7 @@ public class ArchivosEscolaresViewHolder extends RecyclerView.ViewHolder
         implements View.OnClickListener {
 
     public ImageView doc_imagen, doc_download, doc_compartir, doc_delete;
-    public TextView doc_nombre, doc_materia, doc_curso, doc_fecha, doc_escuela;
+    public TextView doc_nombre, doc_creador, doc_materia, doc_curso, doc_fecha, doc_escuela;
     public SwitchMaterial compartir;
 
     private ItemClickListener itemClickListener;
@@ -24,6 +24,7 @@ public class ArchivosEscolaresViewHolder extends RecyclerView.ViewHolder
         super(itemView);
 
         doc_nombre = (TextView)itemView.findViewById(R.id.doc_nombre);
+        //doc_creador = itemView.findViewById(R.id.doc_creador);
         doc_materia = (TextView)itemView.findViewById(R.id.doc_materia);
         doc_curso = itemView.findViewById(R.id.doc_curso);
         doc_escuela = itemView.findViewById(R.id.doc_escuela);
