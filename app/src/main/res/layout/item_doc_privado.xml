@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -34,8 +35,8 @@
             android:layout_marginTop="7dp"/>
 
         <TextView
-            android:id="@+id/doc_materia"
-            android:text="Matematica"
+            android:id="@+id/doc_fecha"
+            android:text="25/07/2021"
             android:textColor="@color/black"
             android:textSize="15sp"
             android:layout_toRightOf="@id/doc_imagen"
@@ -43,51 +44,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"/>
-
-        <TextView
-            android:id="@+id/doc_curso"
-            android:text="curso"
-            android:textColor="@color/black"
-            android:textSize="15sp"
-            android:layout_toRightOf="@id/doc_imagen"
-            android:layout_below="@id/doc_materia"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"/>
-
-        <TextView
-            android:id="@+id/doc_escuela"
-            android:text="Escuela"
-            android:textColor="@color/black"
-            android:textSize="15sp"
-            android:layout_toRightOf="@id/doc_imagen"
-            android:layout_below="@id/doc_curso"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"/>
-
-
-        <TextView
-            android:id="@+id/doc_fecha"
-            android:text="25/07/2021"
-            android:textColor="@color/black"
-            android:textSize="15sp"
-            android:layout_toRightOf="@id/doc_imagen"
-            android:layout_below="@id/doc_escuela"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"/>
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/compartir"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/doc_fecha"
-            android:layout_marginStart="10dp"
-            android:layout_toRightOf="@id/doc_imagen"
-            android:checked="false"
-            android:text="Compartir"
-            android:textColor="@color/black"/>
 
         <ImageView
             android:id="@+id/descargar"

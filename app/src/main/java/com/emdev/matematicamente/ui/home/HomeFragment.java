@@ -35,9 +35,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.emdev.matematicamente.Interface.ItemClickListener;
 import com.emdev.matematicamente.MainActivity;
+import com.emdev.matematicamente.Model.ArchivoPrivado;
 import com.emdev.matematicamente.Model.ArchivosEscolares;
 import com.emdev.matematicamente.Model.Usuario;
 import com.emdev.matematicamente.R;
+import com.emdev.matematicamente.ViewHolder.ArchivoPrivadoViewHolder;
 import com.emdev.matematicamente.ViewHolder.ArchivosEscolaresViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -68,6 +70,9 @@ import java.util.UUID;
 public class HomeFragment extends Fragment {
 
     private static final int RESULT_OK = -1 ;
+    private static final int CODE_TRABAJO = 12;
+    private static final int CODE_DOCUMENTO = 13;
+
     private HomeViewModel homeViewModel;
     FirebaseFirestore db;
     FirebaseAuth mAuth;
@@ -86,10 +91,20 @@ public class HomeFragment extends Fragment {
     String compartido = "";
     ArchivosEscolares trabajoPDF;
 
+    //Para subir archivo privado
+    ArchivoPrivado docPrivado;
+    StorageReference storageReferencePrivates;
+    EditText edtNombreCreadorDoc, edtNombreDocumento;
+    Button btnSelectDoc, btnUploadDoc;
+
     //Ver Trabajos Escolares
     RecyclerView recycler_trabajos;
     LinearLayoutManager layoutManager;
     FirestoreRecyclerAdapter<ArchivosEscolares, ArchivosEscolaresViewHolder> adapterArcEsc;
+
+    //Ver Documentos privados
+    RecyclerView recycler_documentos;
+    FirestoreRecyclerAdapter<ArchivoPrivado, ArchivoPrivadoViewHolder> adapterArcPrivado;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -100,37 +115,219 @@ public class HomeFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference("ArchivosPDF");
+        storageReferencePrivates = FirebaseStorage.getInstance().getReference("ArchivosPrivados");
 
         menuPerfilDocente = root.findViewById(R.id.menuPerfilDocente);
 
         cargarUsuario(mAuth.getCurrentUser().getUid());
 
-        btnSubirMisDocumentos = root.findViewById(R.id.btnSubirMisDocumentos);
-        btnAdmMisDoc = root.findViewById(R.id.btnAdmMisDoc);
-        btnSubirVideo = root.findViewById(R.id.btnSubirVideo);
-        btnAdmVideos = root.findViewById(R.id.btnAdmVideos);
-        btnSubirTrabajo = root.findViewById(R.id.btnSubirTrabajo);
-        btnAdmTrabajos = root.findViewById(R.id.btnAdmTrabajos);
-        btnVerTrabajo = root.findViewById(R.id.btnVerTrabajo);
-
-        btnSubirMisDocumentos.setOnClickListener(new View.OnClickListener() {
+        //Subir y administrar trabajos escolares en PDF
+        btnSubirTrabajo = root.findViewById(R.id.btnSubirMisDocumentos);
+        btnAdmTrabajos = root.findViewById(R.id.btnAdmMisDoc);
+        btnSubirTrabajo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialogSubirTrabajo(usuario);
             }
         });
+        btnAdmTrabajos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogVerMisTrabajos(usuario);
+            }
+        });
+        //--------------------------------
 
+        //Subir y administrar videos explicativos escolares
+        btnSubirVideo = root.findViewById(R.id.btnSubirVideo);
+        btnAdmVideos = root.findViewById(R.id.btnAdmVideos);
+        //--------------------------------
+
+        //Subir y administrar documentación personal
+        btnSubirMisDocumentos = root.findViewById(R.id.btnSubirDocPrivado);
+        btnAdmMisDoc = root.findViewById(R.id.btnAdmDocPrivado);
+        btnSubirMisDocumentos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogSubirDocPrivado(usuario);
+            }
+        });
         btnAdmMisDoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialogVerMisDocumentos(usuario);
             }
         });
+        
 
+        //------------------------------------------------------------
+
+        //Ver trabajos compartidos (app para los estudiantes)
+        btnVerTrabajo = root.findViewById(R.id.btnVerTrabajo);
+        //------------------------------------------------------------
+        
         return root;
     }
 
     private void dialogVerMisDocumentos(Usuario usuario) {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity())
+                .setTitle("Mis archivos privados subidos")
+                .setCancelable(false);
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        View misDocumentosPrivados = inflater.inflate(R.layout.datos_en_recycler, null);
+
+        recycler_documentos = misDocumentosPrivados.findViewById(R.id.recycler_datos);
+        layoutManager = new LinearLayoutManager(getActivity());
+        recycler_documentos.setLayoutManager(layoutManager);
+
+        Query query = db.collection("ArchivosPrivados")
+                .whereEqualTo("id", usuario.getId());
+        //.orderBy("fecha", Query.Direction.DESCENDING);
+
+        FirestoreRecyclerOptions<ArchivoPrivado> options = new FirestoreRecyclerOptions.Builder<ArchivoPrivado>()
+                .setQuery(query, ArchivoPrivado.class)
+                .build();
+
+        adapterArcPrivado = new FirestoreRecyclerAdapter<ArchivoPrivado, ArchivoPrivadoViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull ArchivoPrivadoViewHolder holder, int i, @NonNull ArchivoPrivado arcPrivado) {
+
+                holder.doc_nombre.setText(arcPrivado.getNombre());
+                holder.doc_fecha.setText(arcPrivado.getFecha());
+
+                if (arcPrivado.getUrl().contains(".pdf")){
+                    Picasso.get().load(R.drawable.icon_pdf).into(holder.doc_imagen);
+                } else if (arcPrivado.getUrl().contains(".jpg")){
+                    Picasso.get().load(R.drawable.icon_imagen).into(holder.doc_imagen);
+                }
+
+                //String destinoPath = Environment.DIRECTORY_DOWNLOADS;//Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
+                holder.doc_download.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(), "Boton de descarga", Toast.LENGTH_SHORT).show();
+                        //VERIFICAR PERMISOS
+                        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                                //Denegado, solicitarlo
+                                String [] permisos = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                                //Dialogo emergente
+                                requestPermissions(permisos,PERMISO_ALMACENAMIENTO);
+
+                            } else {
+                                Toast.makeText(MenuDocentesActivity.this, "Espere mientras se descarga", Toast.LENGTH_SHORT).show();
+                                //downloadFile(documentos);
+                                otroDownload(documentos);
+                            }
+                        } else {
+                            Toast.makeText(MenuDocentesActivity.this, "Espere mientras se descarga", Toast.LENGTH_SHORT).show();
+                            otroDownload(documentos);
+
+                        }*/
+                    }
+                });
+
+                holder.doc_delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(), "Boton eliminar", Toast.LENGTH_SHORT).show();
+                        /*deleteMiTrabajo(adapter.getSnapshots().getSnapshot(holder.getAdapterPosition()).getId());*/
+                    }
+                });
+
+                holder.setItemClickListener(new ItemClickListener() {
+                    @Override
+                    public void onClick(View view, int position, boolean isLongClick) {
+                        Toast.makeText(getActivity(), "Id: " + arcPrivado.getIdArchivo(), Toast.LENGTH_SHORT).show();
+                        /*startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(clickEnDoc.getUrl())));*/
+                    }
+                });
+            }
+
+            @NonNull
+            @Override
+            public ArchivoPrivadoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_doc_privado,parent,false);
+                return new ArchivoPrivadoViewHolder(view);
+            }
+        };
+
+        recycler_documentos.setAdapter(adapterArcPrivado);
+        adapterArcPrivado.startListening();
+
+        alert.setView(misDocumentosPrivados);
+
+        alert.setNegativeButton("CERRAR", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                adapterArcPrivado.stopListening();
+                dialogInterface.cancel();
+
+            }
+        });
+
+        alert.show();
+    }
+
+    private void dialogSubirDocPrivado(Usuario usuario) {
+        final AlertDialog.Builder alerta = new AlertDialog.Builder(getActivity())
+                .setTitle("Subir documento privado ... ")
+                .setMessage("Asegúrese que el archivo\nsea en formato PDF para que sea\ncorrecta su lectura.")
+                .setCancelable(false);
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        View agregar_doc_privado = inflater.inflate(R.layout.agregar_doc_privado, null);
+
+        edtNombreDocumento = agregar_doc_privado.findViewById(R.id.edtNombreDocumento);
+        edtNombreCreadorDoc = agregar_doc_privado.findViewById(R.id.edtNombreCreadorDoc);
+        edtNombreCreadorDoc.setText(usuario.getNombre());
+        edtNombreCreadorDoc.setEnabled(false);
+
+        btnSelectDoc = agregar_doc_privado.findViewById(R.id.btnSelectDoc);
+        btnUploadDoc = agregar_doc_privado.findViewById(R.id.btnUploadDoc);
+
+        btnSelectDoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (edtNombreCreadorDoc.getText().toString().equals("")
+                        || edtNombreDocumento.getText().toString().equals("")){
+                    Toast.makeText(getActivity(), "Complete todos los campos", Toast.LENGTH_SHORT).show();
+                } else {
+                    seleccionarPDF(CODE_DOCUMENTO);
+                }
+
+            }
+        });
+
+        alerta.setView(agregar_doc_privado);
+        alerta.setPositiveButton("CONFIRMAR", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (edtNombreCreadorDoc.getText().toString().equals("")
+                        || edtNombreDocumento.getText().toString().equals("")) {
+                    Toast.makeText(getActivity(), "Complete todos los campos", Toast.LENGTH_SHORT).show();
+                } else if (docPrivado != null){
+                    String uid = docPrivado.getIdArchivo();
+                    db.collection("ArchivosPrivados").document(uid).set(docPrivado);
+                    Toast.makeText(getActivity(), "Agregado correctamente", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        alerta.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        alerta.show();
+
+    }
+
+    private void dialogVerMisTrabajos(Usuario usuario) {
         final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity())
                 .setTitle("Mis archivos escolares subidos")
                 .setCancelable(false);
@@ -297,19 +494,11 @@ public class HomeFragment extends Fragment {
     }
 
     private void dialogSubirTrabajo(Usuario usuario) {
-        final String[] array = {"Si", "No"};
 
         final AlertDialog.Builder alerta = new AlertDialog.Builder(getActivity())
                 .setTitle("Subir trabajo ... ")
                 .setMessage("Asegúrese que el archivo\nsea en formato PDF para que sea\ncorrecta su lectura.")
                 .setCancelable(false);
-                /*.setSingleChoiceItems(array, 0, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        compartido = array[which];
-                        Toast.makeText(getActivity(), compartido, Toast.LENGTH_SHORT).show();
-                    }
-                });*/
 
         LayoutInflater inflater = this.getLayoutInflater();
         View agregar_trabajo = inflater.inflate(R.layout.agregar_trabajo, null);
@@ -405,7 +594,7 @@ public class HomeFragment extends Fragment {
                         || cur.equals("") || cur.equals("0")){
                     Toast.makeText(getActivity(), "Complete Nombre, Asignatura y Curso", Toast.LENGTH_SHORT).show();
                 } else {
-                    seleccionarPDF();
+                    seleccionarPDF(CODE_TRABAJO);
                 }
 
             }
@@ -437,18 +626,18 @@ public class HomeFragment extends Fragment {
         alerta.show();
     }
 
-    private void seleccionarPDF() {
+    private void seleccionarPDF(int request_code) {
         Intent selectWork = new Intent();
         selectWork.setType("application/pdf");
         selectWork.setAction(selectWork.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(selectWork, "SELECCIONAR PDF"), 12);
+        startActivityForResult(Intent.createChooser(selectWork, "SELECCIONAR PDF"), request_code);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 12 && resultCode == RESULT_OK && data != null && data.getData() != null){
+        if (requestCode == CODE_TRABAJO && resultCode == RESULT_OK && data != null && data.getData() != null){
             btnUpload.setEnabled(true);
             btnSelect.setText("Archivo selec.");
             btnSelect.setEnabled(false);
@@ -465,6 +654,22 @@ public class HomeFragment extends Fragment {
                 }
             });
 
+        } else if (requestCode == CODE_DOCUMENTO && resultCode == RESULT_OK && data != null && data.getData() != null){
+            btnUploadDoc.setEnabled(true);
+            btnSelectDoc.setText("Archivo selec.");
+            btnSelectDoc.setEnabled(false);
+
+            btnUploadDoc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    subirDocumentoPDF(data.getData());
+                    btnUploadDoc.setText("ARC. almac.");
+                    btnUploadDoc.setEnabled(false);
+                    Log.d("Nombre uri", data.toString());
+
+                }
+            });
         }
 
         /*if (requestCode == PICK_IMAGE  && resultCode == -1) {
@@ -517,8 +722,47 @@ public class HomeFragment extends Fragment {
             }
         }*/
 
+    }
 
+    private void subirDocumentoPDF(Uri data) {
+        final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setTitle("Subir documento privado");
+        progressDialog.show();
 
+        //Ruta en el Storage
+        StorageReference reference = storageReferencePrivates.child(edtNombreCreadorDoc.getText().toString() + "/" + edtNombreDocumento.getText().toString() + ".pdf");
+
+        reference.putFile(data)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+                        while (!uriTask.isComplete());
+                        Uri uri = uriTask.getResult();
+
+                        SimpleDateFormat currentDate = new SimpleDateFormat("dd/MM/yyyy");
+                        Date todayDate = new Date();
+                        String thisDate = currentDate.format(todayDate);
+
+                        //ArchivoPrivado(String id, String idArchivo, String nombre, String fecha, String url)
+                        String id = mAuth.getUid();
+                        String idArc = String.valueOf(System.currentTimeMillis());
+                        docPrivado = new ArchivoPrivado(id, idArc, edtNombreDocumento.getText().toString() + "_" + edtNombreCreadorDoc.getText().toString(), thisDate, uri.toString());
+
+                        Toast.makeText(getActivity(), "Archivo subido a la nube\nPresione CONFIRMAR", Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+
+                    }
+                })
+                .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                        double progress = (100.0 * snapshot.getBytesTransferred())/snapshot.getTotalByteCount();
+                        progressDialog.setMessage("Subiendo archivo... " + (int) progress + "%");
+
+                    }
+                });
     }
 
     private void subirArchivoPDF(Uri data) {

@@ -12,7 +12,7 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/menuPerfilDocente"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -69,7 +69,7 @@
                             <ImageView
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/subir_doc"
+                                android:background="@drawable/subir_trab"
                                 android:text=""/>
 
                             <TextView
@@ -77,7 +77,7 @@
                                 android:layout_height="wrap_content"
                                 android:textColor="#000000"
                                 android:textStyle="bold"
-                                android:text="Subir doc."/>
+                                android:text="Subir trabajo"/>
 
                         </LinearLayout>
 
@@ -109,7 +109,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Mis doc."
+                                android:text="Adm. trab."
                                 android:textColor="#000000"
                                 android:textStyle="bold"/>
 
@@ -187,7 +187,7 @@
                     </androidx.cardview.widget.CardView>
 
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/btnSubirTrabajo"
+                        android:id="@+id/btnSubirDocPrivado"
                         android:background="@color/white"
                         android:clickable="true"
                         android:layout_width="wrap_content"
@@ -208,11 +208,11 @@
                             <ImageView
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/subir_trab"/>
+                                android:background="@drawable/subir_doc"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Subir trab."
+                                android:text="Subir doc."
                                 android:textColor="#000000"
                                 android:textStyle="bold"/>
 
@@ -221,7 +221,7 @@
                     </androidx.cardview.widget.CardView>
 
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/btnAdmTrabajos"
+                        android:id="@+id/btnAdmDocPrivado"
                         android:background="@color/white"
                         android:clickable="true"
                         android:layout_width="wrap_content"
@@ -246,7 +246,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Adm. trab."
+                                android:text="Adm. doc."
                                 android:textColor="#000000"
                                 android:textStyle="bold"/>
 
